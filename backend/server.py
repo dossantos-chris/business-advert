@@ -1,19 +1,25 @@
 from flask import Flask, jsonify
-from pymongo import MongoClient
+from motor.motor_asyncio import AsyncIOMotorClient
 from flask_cors import CORS
 import os
 from dotenv import load_dotenv
 load_dotenv()
 
 app = Flask(__name__)
-client = MongoClient(os.getenv("MONGO_URI"))
+client = AsyncIOMotorClient(os.getenv("MONGO_URI"))
 db = client.BusinessAdvert
 CORS(app)
 
+@app.route("/", methods=["GET"])
+async def home():
+    return "<main>Home Page</main>"
+
+
 @app.route("/test", methods=["GET"])
 async def test():
-    business = db['businesses'].find_one({"name" : "Xina"}, {"_id": 0})  # Exclude _id field
-    return jsonify({'business': business})
+    businessCursor = db.businesses.find({}, {"_id": 0})
+    businesses = await businessCursor.to_list(None)
+    return jsonify({"businesses": businesses})
 
 if __name__ == "__main__":
     app.run(debug=True)

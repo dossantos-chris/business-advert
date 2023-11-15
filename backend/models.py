@@ -6,4 +6,4 @@ class Business:
         self.service = service
         self.city = city
         self.state = state
-        self.dateAdded = str(datetime.now())
+        self.dateAdded = str(datetime.utcnow())

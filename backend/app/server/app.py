@@ -1,6 +1,5 @@
 from fastapi import FastAPI
-from starlette.middleware.cors import CORSMiddleware
-from starlette.middleware import Middleware
+from fastapi.middleware.cors import CORSMiddleware
 
 from app.server.routes.business import router as BusinessRouter
 

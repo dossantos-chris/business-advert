@@ -1,5 +1,6 @@
-from fastapi import APIRouter, Body, HTTPException
+from fastapi import APIRouter, Body
 from fastapi.encoders import jsonable_encoder
+from fastapi.responses import JSONResponse
 
 from app.server.database import (
     retrieve_businesses,
@@ -30,10 +31,8 @@ async def get_business_data(id):
     business = await retrieve_business(id)
     if business:
         return ResponseModel(business, "Business data retrieved successfully")
-    raise HTTPException(
-        status_code = 404,
-        detail = ErrorResponseModel("An error occurred.", 404, "Business doesn't exist.")
-    )
+    return JSONResponse(content = ErrorResponseModel("An error occurred.", 404, "Business doesn't exist."),
+                        status_code = 404)
 
 @router.post("/")
 async def add_business_data(business: BusinessSchema = Body(...)):
@@ -50,10 +49,8 @@ async def update_business_data(id: str, req: UpdateBusinessSchema = Body(...)):
             f"Business with ID: {id} update is successful",
             "Business updated successfully",
         )
-    raise HTTPException(
-        status_code = 404,
-        detail = ErrorResponseModel("An error occurred", 404 ,"There was an error updating the business data.")
-    )
+    return JSONResponse(content = ErrorResponseModel("An error occurred", 404 ,"There was an error updating the business data."),
+                        status_code = 404)
 
 @router.delete("/{id}")
 async def delete_business_data(id: str):
@@ -62,8 +59,5 @@ async def delete_business_data(id: str):
         return ResponseModel(
             f"Business with ID: {id} removed", "Business deleted successfully"
         )
-    raise HTTPException(
-        status_code = 404,
-        detail = ErrorResponseModel("An error occurred", 404, f"Business with id {id} doesn't exist")
-    )
-
+    return JSONResponse(content = ErrorResponseModel("An error occurred", 404, f"Business with id {id} doesn't exist"),
+                        status_code = 404)

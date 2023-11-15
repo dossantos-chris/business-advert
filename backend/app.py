@@ -1,17 +1,22 @@
-from flask import Flask, jsonify, request
-from models import Business
-from bson import ObjectId
 from datetime import datetime
-from motor.motor_asyncio import AsyncIOMotorClient
-from flask_cors import CORS
 import os
+
+from asgiref.wsgi import WsgiToAsgi
+from bson import ObjectId
 from dotenv import load_dotenv
-load_dotenv()
+from flask import Flask, jsonify, request
+from flask_cors import CORS
+from motor.motor_asyncio import AsyncIOMotorClient
+import uvicorn
+
+from models import Business
 
 app = Flask(__name__)
+CORS(app) 
+load_dotenv()
+
 client = AsyncIOMotorClient(os.getenv("MONGO_URI"))
 db = client.BusinessAdvert
-CORS(app) 
 
 @app.route("/list", methods=["GET"])
 async def list():
@@ -25,7 +30,7 @@ async def list():
 
 @app.route("/add", methods=["POST"])
 async def add():
-    data = request.json
+    data = request.get_json(force=True)
 
     if "name" in data and "service" in data and "city" in data and "state" in data:
         new_business = Business(data["name"], data["service"], data["city"], data["state"])
@@ -53,14 +58,14 @@ async def edit():
     except:
         return jsonify({"error": "Not a valid business ID"}) , 400
 
-    data = request.json
+    data = request.get_json(force=True)
 
     if "name" in data and "service" in data and "city" in data and "state" in data:
         new_business = Business(data["name"], data["service"], data["city"], data["state"])
 
         business_dict = vars(new_business)
         business_dict.pop("dateAdded")
-        business_dict['lastUpdated'] = str(datetime.now())
+        business_dict['lastUpdated'] = str(datetime.utcnow())
 
         result = await db.businesses.update_one({"_id": oid}, {"$set": business_dict})
 
@@ -71,8 +76,6 @@ async def edit():
     else:
         return jsonify({"error": "Invalid business model"}), 400
     
-
-
 @app.route("/delete", methods=["DELETE"])
 async def delete():
     business_id = request.args.get("id", None)
@@ -93,4 +96,5 @@ async def delete():
     return jsonify({"message": "Business deleted successfully", "_id": business_id}), 200
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    asgi_app = WsgiToAsgi(app)
+    uvicorn.run(asgi_app, host="127.0.0.1", port=5000)

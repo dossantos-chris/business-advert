@@ -16,5 +16,5 @@ app.add_middleware(
 )
 
 #maybe add tags to this line and routes for documentation
-app.include_router(BusinessRouter, prefix="/business")
+app.include_router(BusinessRouter, tags = ["Business"], prefix = "/business")
 

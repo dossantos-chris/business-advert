@@ -2,7 +2,7 @@ from fastapi import APIRouter, Body
 from fastapi.encoders import jsonable_encoder
 from fastapi.responses import JSONResponse
 
-from app.server.database import (
+from app.server.database.business import (
     retrieve_businesses,
     retrieve_business,
     add_business,
@@ -11,10 +11,13 @@ from app.server.database import (
 )
 
 from app.server.models.business import (
-    ErrorResponseModel,
-    ResponseModel,
     BusinessSchema,
-    UpdateBusinessSchema,
+    UpdateBusinessSchema
+)
+
+from app.server.models.response import (
+    ErrorResponseModel,
+    ResponseModel
 )
 
 router = APIRouter()

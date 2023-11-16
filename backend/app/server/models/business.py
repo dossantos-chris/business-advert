@@ -1,6 +1,6 @@
 from datetime import datetime
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, validator
 from typing import Optional, Union, List
 
 class BusinessSchema(BaseModel):
@@ -26,7 +26,13 @@ class UpdateBusinessSchema(BaseModel):
     service: Optional[Union[str, List[str]]] = None
     city: Optional[str] = None
     state: Optional[str] = None
-    lastUpdated: str = str(datetime.utcnow())
+    lastUpdated: Optional[str] = None
+
+    @validator("lastUpdated", pre=True, always=True)
+    def set_last_updated(cls, last_updated, values):
+        if any(values.get(field) for field in values if field != "lastUpdated"):
+            return str(datetime.utcnow())
+        return last_updated
 
     class Config:
         schema_extra = {

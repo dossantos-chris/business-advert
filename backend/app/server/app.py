@@ -2,6 +2,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from app.server.routes.business import router as BusinessRouter
+from app.server.routes.user import router as UserRouter
 
 #probably set up an origin list at some point
 app = FastAPI()
@@ -17,4 +18,5 @@ app.add_middleware(
 
 #maybe add tags to this line and routes for documentation
 app.include_router(BusinessRouter, tags = ["Business"], prefix = "/business")
+app.include_router(UserRouter, tags = ["User"], prefix = "/user")
 

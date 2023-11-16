@@ -1,11 +1,11 @@
 from datetime import datetime
 
 from pydantic import BaseModel, Field, validator
-from typing import Optional, Union, List
+from typing import Optional, List
 
 class BusinessSchema(BaseModel):
     name: str = Field(...)
-    service: Union[str, List[str]] = Field(...)
+    service: str | List[str] = Field(...)
     city: str = Field(...)
     state: str = Field(...)
     dateAdded : str = str(datetime.utcnow())
@@ -23,7 +23,7 @@ class BusinessSchema(BaseModel):
 
 class UpdateBusinessSchema(BaseModel):
     name: Optional[str] = None
-    service: Optional[Union[str, List[str]]] = None
+    service: Optional[str | List[str]] = None
     city: Optional[str] = None
     state: Optional[str] = None
     lastUpdated: Optional[str] = None

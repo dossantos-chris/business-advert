@@ -34,7 +34,7 @@ async def get_business_data(id: str):
     business = await retrieve_business(id)
     if business:
         return ResponseModel(business, "Business data retrieved successfully")
-    return JSONResponse(content = ErrorResponseModel("An error occurred", 404, "Business doesn't exist."),
+    return JSONResponse(content = ErrorResponseModel("An error occurred", 404, "Business doesn't exist"),
                         status_code = 404)
 
 @router.post("/", response_description = "Business data added into the database")
@@ -52,7 +52,7 @@ async def update_business_data(id: str, req: UpdateBusinessSchema = Body(...)):
             f"Business with ID: {id} update is successful",
             "Business updated successfully",
         )
-    return JSONResponse(content = ErrorResponseModel("An error occurred", 404 ,"There was an error updating the business data."),
+    return JSONResponse(content = ErrorResponseModel("An error occurred", 404 ,"There was an error updating the business data"),
                         status_code = 404)
 
 @router.delete("/{id}", response_description = "Business data deleted from the database")

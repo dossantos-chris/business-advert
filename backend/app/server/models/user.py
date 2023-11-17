@@ -13,10 +13,3 @@ class UserSchema(BaseModel):
                 "disabled": False
             }
         }
-
-class Token(BaseModel):
-    access_token: str = Field(...)
-    token_type: str = Field(...)
-
-class TokenData(BaseModel):
-    username: str | None = None

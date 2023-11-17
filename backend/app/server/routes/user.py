@@ -11,9 +11,7 @@ from app.server.database.user import (
 )
 
 from app.server.models.user import (
-    UserSchema,
-    Token,
-    TokenData
+    UserSchema
 )
 
 from app.server.models.response import (
@@ -57,7 +55,6 @@ async def get_current_user(token: str = Depends(oauth_2_scheme)):
     try:
         payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
         username : str = payload.get("sub")
-        token_data = TokenData(username=username)
     except jwt.ExpiredSignatureError:
         return JSONResponse(content = ErrorResponseModel("An error occured", 401, "Token expired",),
                             status_code = 401,
@@ -67,7 +64,7 @@ async def get_current_user(token: str = Depends(oauth_2_scheme)):
                             status_code = 401,
                             headers = {"WWW-Authenticate": "Bearer"})
     
-    user = await get_user(username=token_data.username)
+    user = await get_user(username)
     if not user:
         return JSONResponse(content = ErrorResponseModel("An error occured", 401, "User no longer exists",),
                             status_code = 404,
@@ -90,7 +87,7 @@ async def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends(
                             headers = {"WWW-Authenticate": "Bearer"})
     
     access_token = create_access_token(data={"sub": user["username"]}, expires_delta= timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES))
-    return Token(access_token=access_token, token_type="bearer")
+    return {"access_token": access_token, "token_type": "bearer"}
 
 @router.get("/me")
 async def read_current_user(current_user: UserSchema = Depends(get_current_user)):

@@ -67,6 +67,7 @@ async def get_current_user(token: str = Depends(oauth_2_scheme)):
         token_data = TokenData(username=username)
     except JWTError:
         return credential_exception
+    
     user = await get_user(username=token_data.username)
     if not user:
         return credential_exception
@@ -74,10 +75,7 @@ async def get_current_user(token: str = Depends(oauth_2_scheme)):
     return user
 
 async def get_current_active_user(current_user: UserInDBSchema = Depends(get_current_user)):
-    if(type(current_user) is JSONResponse):
-        return current_user
-    
-    if current_user.disabled:
+    if (type(current_user) is UserInDBSchema) and current_user.disabled:
         return JSONResponse(content = ErrorResponseModel("An error occurred", 400, "Inactive user"),
                             status_code = 400)
     return current_user
@@ -93,8 +91,7 @@ async def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends(
                             status_code = 401,
                             headers = {"WWW-Authenticate": "Bearer"})
     
-    access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
-    access_token = create_access_token(data={"sub": user.username}, expires_delta= access_token_expires)
+    access_token = create_access_token(data={"sub": user.username}, expires_delta= timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES))
     return Token(access_token=access_token, token_type="bearer")
 
 @router.get("/me")

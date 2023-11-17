@@ -2,6 +2,13 @@ from fastapi import APIRouter
 
 router = APIRouter()
 
+from app.server.models.user import (
+    UserSchema,
+    UserInDBSchema,
+    Token,
+    TokenData
+)
+
 from app.server.models.response import (
     ErrorResponseModel,
     ResponseModel

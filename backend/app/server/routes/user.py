@@ -84,7 +84,7 @@ async def get_current_active_user(current_user: UserInDBSchema = Depends(get_cur
 
 router = APIRouter()
 
-@router.post("/token")
+@router.post("/login")
 async def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends()):
     user = await authenticate_user(form_data.username, form_data.password)
 
@@ -98,5 +98,5 @@ async def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends(
     return Token(access_token=access_token, token_type="bearer")
 
 @router.get("/me")
-async def read_user_me(current_user: UserSchema = Depends(get_current_active_user)):
+async def read_current_user(current_user: UserSchema = Depends(get_current_active_user)):
     return current_user

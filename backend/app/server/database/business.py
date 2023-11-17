@@ -19,7 +19,7 @@ def business_helper(business) -> dict:
 
     return result
 
-async def retrieve_businesses():
+async def retrieve_businesses() -> list[dict]:
     businesses = []
     async for business in business_collection.find():
         businesses.append(business_helper(business))
@@ -35,7 +35,7 @@ async def add_business(business_data: dict) -> dict:
     new_business = await business_collection.find_one({"_id": business.inserted_id})
     return business_helper(new_business)
 
-async def update_business(id: str, data: dict):
+async def update_business(id: str, data: dict) -> bool:
     if len(data) < 1:
         return False
     business = await business_collection.find_one({"_id": ObjectId(id)})
@@ -45,7 +45,7 @@ async def update_business(id: str, data: dict):
             return True
     return False
 
-async def delete_business(id: str):
+async def delete_business(id: str) -> bool:
     business = await business_collection.find_one({"_id": ObjectId(id)})
     if business:
         await business_collection.delete_one({"_id": ObjectId(id)})

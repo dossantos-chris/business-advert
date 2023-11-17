@@ -2,19 +2,17 @@ from pydantic import BaseModel, Field
 
 class UserSchema(BaseModel):
     username: str = Field(...)
+    hashed_password: str = Field(...)
     disabled: bool | None = None
 
     class Config:
         schema_extra = {
             "example": {
-                "username": "Chris",
-                "password": "Password1234",
+                "username": "chris",
+                "hashed_password": "Password1234",
                 "disabled": False
             }
         }
-
-class UserInDBSchema(UserSchema):
-    hashed_password: str = Field(...)
 
 class Token(BaseModel):
     access_token: str = Field(...)

@@ -30,7 +30,7 @@ async def get_businesses():
     return ResponseModel(businesses, "No businesses in the DB")
 
 @router.get("/{id}", response_description = "Business data retrieved")
-async def get_business_data(id):
+async def get_business_data(id: str):
     business = await retrieve_business(id)
     if business:
         return ResponseModel(business, "Business data retrieved successfully")

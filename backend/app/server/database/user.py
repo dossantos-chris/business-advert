@@ -1,5 +1,4 @@
 from app.server.db import db
-from app.server.models.user import UserInDBSchema
 
 user_collection = db.users
 
@@ -12,7 +11,7 @@ def user_helper(user) -> dict:
 
     return result
 
-async def get_user(username: str):
+async def get_user(username: str) -> dict:
     user = await user_collection.find_one({"username": username})
     if user:
-        return UserInDBSchema(**user_helper(user))
+        return user_helper(user)

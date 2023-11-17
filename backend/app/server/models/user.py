@@ -1,9 +1,7 @@
 from pydantic import BaseModel, Field
-from typing import Optional
 
 class UserSchema(BaseModel):
     username: str = Field(...)
-    password: str = Field(...)
     disabled: bool | None = None
 
     class Config:

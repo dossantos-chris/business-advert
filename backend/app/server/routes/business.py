@@ -34,14 +34,14 @@ async def get_business_data(id):
     business = await retrieve_business(id)
     if business:
         return ResponseModel(business, "Business data retrieved successfully")
-    return JSONResponse(content = ErrorResponseModel("An error occurred.", 404, "Business doesn't exist."),
+    return JSONResponse(content = ErrorResponseModel("An error occurred", 404, "Business doesn't exist."),
                         status_code = 404)
 
 @router.post("/", response_description = "Business data added into the database")
 async def add_business_data(business: BusinessSchema = Body(...)):
     business = jsonable_encoder(business)
     new_business = await add_business(business)
-    return ResponseModel(new_business, "Business added successfully.")
+    return ResponseModel(new_business, "Business added successfully")
 
 @router.put("/{id}", response_description = "Business data updated")
 async def update_business_data(id: str, req: UpdateBusinessSchema = Body(...)):

@@ -12,7 +12,6 @@ from app.server.database.user import (
 
 from app.server.models.user import (
     UserSchema,
-    UserInDBSchema,
     Token,
     TokenData
 )
@@ -40,7 +39,7 @@ async def authenticate_user(username: str, password: str):
 
     if not user:
         return False
-    if not verify_password(password, user.hashed_password):
+    if not verify_password(password, user["hashed_password"]):
         return False
     return user
 
@@ -55,30 +54,29 @@ def create_access_token(data: dict, expires_delta: timedelta | None):
     return encoded_jwt
 
 async def get_current_user(token: str = Depends(oauth_2_scheme)):
-    credential_exception = JSONResponse(content = ErrorResponseModel("An error occured", 401, "Could not validate credentials",),
-                                        status_code = 401,
-                                        headers = {"WWW-Authenticate": "Bearer"})
     try:
         payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
         username : str = payload.get("sub")
-        if username is None:
-            return credential_exception
-
         token_data = TokenData(username=username)
+    except jwt.ExpiredSignatureError:
+        return JSONResponse(content = ErrorResponseModel("An error occured", 401, "Token expired",),
+                            status_code = 401,
+                            headers = {"WWW-Authenticate": "Bearer"})
     except JWTError:
-        return credential_exception
+        return JSONResponse(content = ErrorResponseModel("An error occured", 401, "Could not validate credentials",),
+                            status_code = 401,
+                            headers = {"WWW-Authenticate": "Bearer"})
     
     user = await get_user(username=token_data.username)
     if not user:
-        return credential_exception
+        return JSONResponse(content = ErrorResponseModel("An error occured", 401, "User no longer exists",),
+                            status_code = 404,
+                            headers = {"WWW-Authenticate": "Bearer"})
     
-    return user
-
-async def get_current_active_user(current_user: UserInDBSchema = Depends(get_current_user)):
-    if (type(current_user) is UserInDBSchema) and current_user.disabled:
+    if user["disabled"]:
         return JSONResponse(content = ErrorResponseModel("An error occurred", 400, "Inactive user"),
                             status_code = 400)
-    return current_user
+    return user
 
 router = APIRouter()
 
@@ -91,9 +89,9 @@ async def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends(
                             status_code = 401,
                             headers = {"WWW-Authenticate": "Bearer"})
     
-    access_token = create_access_token(data={"sub": user.username}, expires_delta= timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES))
+    access_token = create_access_token(data={"sub": user["username"]}, expires_delta= timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES))
     return Token(access_token=access_token, token_type="bearer")
 
 @router.get("/me")
-async def read_current_user(current_user: UserSchema = Depends(get_current_active_user)):
+async def read_current_user(current_user: UserSchema = Depends(get_current_user)):
     return current_user

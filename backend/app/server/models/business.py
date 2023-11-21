@@ -1,6 +1,6 @@
 from datetime import datetime
 
-from pydantic import BaseModel, Field, validator
+from pydantic import ConfigDict, BaseModel, Field, validator
 from typing import Optional, List
 
 class BusinessSchema(BaseModel):
@@ -9,17 +9,16 @@ class BusinessSchema(BaseModel):
     city: str = Field(...)
     state: str = Field(...)
     dateAdded : str = str(datetime.utcnow())
-
-    class Config:
-        schema_extra = {
-            "example": {
-                "name": "Aqua Blue",
-                "service": ["bar", "restaurant"],
-                "city": "Toms River",
-                "state": "New Jersey",
-                "dateAdded": "2023-11-14 16:04:56.209516",
-            }
+    
+    model_config = ConfigDict(json_schema_extra={
+        "example": {
+            "name": "Aqua Blue",
+            "service": ["bar", "restaurant"],
+            "city": "Toms River",
+            "state": "New Jersey",
+            "dateAdded": "2023-11-14 16:04:56.209516",
         }
+    })
 
 class UpdateBusinessSchema(BaseModel):
     name: Optional[str] = None
@@ -33,10 +32,8 @@ class UpdateBusinessSchema(BaseModel):
         if any(values.get(field) for field in values if field != "lastUpdated"):
             return str(datetime.utcnow())
         return last_updated
-
-    class Config:
-        schema_extra = {
-            "example": {
-                "city": "Seaside",
-            }
+    model_config = ConfigDict(json_schema_extra={
+        "example": {
+            "city": "Seaside",
         }
+    })

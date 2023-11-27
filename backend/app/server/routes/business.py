@@ -31,6 +31,10 @@ async def get_businesses():
 
 @router.get("/{id}", response_description = "Business data retrieved")
 async def get_business_data(id: str):
+    if len(id) != 24:
+        return JSONResponse(content = ErrorResponseModel("An error occurred", 400, "Business ID must be length of 24"),
+                        status_code = 400)
+
     business = await retrieve_business(id)
     if business:
         return ResponseModel(business, "Business data retrieved successfully")
